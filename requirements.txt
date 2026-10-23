@@ -1,0 +1,7 @@
+datasets
+pandas
+duckdb
+streamlitpandas
+pyarrow
+huggingface_hub
+streamlit
