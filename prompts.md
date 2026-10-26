@@ -1,3 +1,4 @@
+## Prompt 1 (Copilot agent):
 Φτιάχνω μια εφαρμογή ανάλυσης σχολίων δημόσιας διαβούλευσης (opengov.gr)
 με βάση το Hugging Face dataset "glossAPI/opengov-deliberations-v2".
 Σε αυτό το πρώτο βήμα θέλω ΜΟΝΟ εξερεύνηση, χωρίς clustering ή LLM.
@@ -27,3 +28,32 @@
 - Σχόλια στον κώδικα στα ελληνικά, σύντομα.
 - Στο τέλος εξήγησέ μου με λίγες γραμμές τι βρήκες και ποιες
   διαβουλεύσεις φαίνονται κατάλληλες (πολλά σχόλια, λίγα κενά).
+---
+
+## Prompt 2 (Copilot agent): αλλαγή dataset και ισοπέδωση σχολίων
+
+> Έχω πλέον εγκεκριμένη πρόσβαση στο glossAPI/OpenGov_Deliberations (το HF_TOKEN μου το βλέπει). Χρησιμοποίησε αυτό το dataset αντί για το v2. Τα σχόλια είναι φωλιασμένα στο articles[].comments[].content: κάνε explode ώστε να έχεις ένα row ανά σχόλιο και ξανατρέξε το explore.py.
+
+Αποτέλεσμα: ο agent βρήκε το schema (consultation_id, title, articles → comments) και τα στατιστικά ανά διαβούλευση (14 διαβουλεύσεις, ~6.300 σχόλια).
+
+## Prompt 3 (Copilot agent): επιλογή 3 διαβουλεύσεων
+
+> Φτιάξε από το explode ένα μικρό αρχείο data/selected_comments.parquet μόνο για τις διαβουλεύσεις με ID 13, 8 και 11, με στήλες: consultation_id, consultation_title, article_id, article_title, comment_row_id, date, content. Ενημέρωσε το explore.py και το .gitignore.
+
+Αποτέλεσμα: δημιουργήθηκε το αρχείο με 5.059 σχόλια. Οι ID επιλέχθηκαν ως οι διαβουλεύσεις με τα περισσότερα σχόλια και διαφορετικό θέμα.
+
+## Prompt 4 (Copilot agent): επανεγγραφή explore.py
+
+> Το explore.py εξακολουθεί να είναι η παλιά έκδοση για το v2. Διάγραψε το και δημιούργησέ το από την αρχή για το OpenGov_Deliberations (hf_hub_download, explode, stats.csv, selected_comments.parquet).
+
+Αποτέλεσμα: ο agent δεν κατάφερε να γράψει το αρχείο στο workspace (περιορισμός του εργαλείου δημιουργίας αρχείων). Το `explore.py` γράφτηκε τελικά χειροκίνητα, με κώδικα που έδωσε ο βοηθός Claude (chat).
+
+## Prompt 5 (Copilot agent): cluster.py
+
+> Φτιάξε το αρχείο cluster.py που εντοπίζει σχόλια που επαναλαμβάνονται αυτούσια, υπολογίζει embeddings με το intfloat/multilingual-e5-small και ομαδοποιεί τα σχόλια κάθε διαβούλευσης με KMeans.
+
+Αποτέλεσμα: ο agent και πάλι δεν κατάφερε να δημιουργήσει το αρχείο. Ο κώδικας του `cluster.py` και οι εντολές εγκατάστασης (Python 3.12, sentence-transformers) δόθηκαν από τον βοηθό Claude (chat) και τα επικόλλησα εγώ στον editor και στο terminal.
+
+## Σημείωση για τη χρήση AI
+
+Ο coding agent (GitHub Copilot) χρησιμοποιήθηκε για την εξερεύνηση του dataset και τα πρώτα scripts. Όπου το εργαλείο αδυνατούσε να γράψει αρχεία, ο κώδικας δημιουργήθηκε με βοήθεια του βοηθού Claude μέσω συνομιλίας, και καταγράφεται ρητά παραπάνω.
