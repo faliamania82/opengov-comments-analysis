@@ -1,7 +1,4 @@
-datasets
-pandas
-duckdb
-streamlitpandas
-pyarrow
-huggingface_hub
 streamlit
+pandas
+pyarrow
+altair
