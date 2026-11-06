@@ -1,6 +1,6 @@
 # Ανάλυση σχολίων opengov.gr
 
-Πρώτο στάδιο εξερεύνησης του Hugging Face dataset `glossAPI/opengov-deliberations-v2`. Δεν εκτελεί clustering ή ανάλυση με LLM.
+Πρώτο στάδιο εξερεύνησης του Hugging Face dataset `glossAPI/opengov-deliberations-v3`. Δεν εκτελεί clustering ή ανάλυση με LLM.
 
 ## Εγκατάσταση
 
