@@ -1,7 +1,5 @@
-"""Τρίτο δείγμα αξιολόγησης (ανεξάρτητο): 30 σχόλια, 10 ανά διαβούλευση, που δεν ανήκουν
-ούτε στο πρώτο (26) ούτε στο δεύτερο (30) δείγμα.
-Τρέξε το ΜΟΝΟ αφού τελειώσει η v4 και ενημερωθεί το build_final.py,
-ώστε το data/final_comments.parquet να έχει τις ετικέτες v4."""
+"""Τρίτο δείγμα αξιολόγησης (ανεξάρτητο): 30 σχόλια που δεν ανήκουν στα δείγματα 1 και 2.
+5 ανά διαβούλευση από όσα η v4 χαρακτήρισε «κατά» και 5 από τα υπόλοιπα."""
 import pandas as pd
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -16,7 +14,7 @@ final["consultation_id"] = final["consultation_id"].astype(str)
 base = final[final["stance"] != "σύντομο"].drop_duplicates(["consultation_id", "norm"]).copy()
 base["k"] = base["content"].map(key)
 
-# Δείγμα 1: από το αρχικό Excel (δεν πρέπει να έχει αλλοιωθεί)
+# Δείγμα 1: από το αρχικό Excel
 old1 = set(pd.read_excel("data/eval_sample.xlsx")["content"].map(key))
 
 # Δείγμα 2: ανακατασκευή με τον ίδιο κώδικα και σπόρους με το prepare_eval2.py
@@ -28,14 +26,20 @@ assert list(s2["consultation_id"]) == list(k2["consultation_id"]), \
     "Δεν μπόρεσα να ανακατασκευάσω το δείγμα 2. Σταμάτα και πες το στον βοηθό."
 old2 = set(s2["k"])
 
-# Δείγμα 3: νέα σχόλια
+# Δείγμα 3: νέα σχόλια, με υπερδειγματοληψία των «κατά» της v4 (έως 5 ανά διαβούλευση)
 pool = base[~base["k"].isin(old1 | old2)]
-s3 = (pool.groupby("consultation_id", group_keys=False).sample(10, random_state=33)
-          .sample(frac=1, random_state=4).reset_index(drop=True))
+parts = []
+for cid, g in pool.groupby("consultation_id"):
+    gk = g[g["stance"] == "κατά"]
+    go = g[g["stance"] != "κατά"]
+    nk = min(5, len(gk))
+    parts.append(gk.sample(nk, random_state=33).assign(stratum="κατά"))
+    parts.append(go.sample(10 - nk, random_state=33).assign(stratum="άλλο"))
+s3 = pd.concat(parts).sample(frac=1, random_state=4).reset_index(drop=True)
 s3.insert(0, "id", range(1, len(s3) + 1))
 
 # Κλειδί με τις ετικέτες v4: ΜΗΝ το ανοίξεις πριν τελειώσεις τον χαρακτηρισμό
-s3[["id", "consultation_id", "stance", "has_proposal"]].rename(
+s3[["id", "consultation_id", "stratum", "stance", "has_proposal"]].rename(
     columns={"stance": "v4_stance", "has_proposal": "v4_proposal"}
 ).to_csv("data/eval3_key.csv", index=False)
 
