@@ -6,7 +6,7 @@ comments["consultation_id"] = comments["consultation_id"].astype(str)
 comments["comment_row_id"] = comments["comment_row_id"].astype(str)
 
 # Ετικέτες του Gemini (ένα ανά μοναδικό κείμενο) -> μεταφορά σε όλα τα ίδια σχόλια
-cls = pd.read_csv("data/classified_unique_v3.csv", dtype=str)
+cls = pd.read_csv("data/classified_unique_v4.csv", dtype=str)
 cls = cls.merge(comments[["comment_row_id", "norm"]], on="comment_row_id", how="left")
 cls = cls.drop_duplicates(["consultation_id", "norm"])[
     ["consultation_id", "norm", "stance", "has_proposal"]
